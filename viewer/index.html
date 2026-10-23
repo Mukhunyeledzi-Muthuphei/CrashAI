@@ -980,6 +980,7 @@ addEventListener('resize', resize);
 
 let last = performance.now(), clock = 0;
 function frame(now) {
+  if (state.capture) { requestAnimationFrame(frame); return; }
   const dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
   if (state.playing && !scrubbing) {
     state.t += dt * state.speed;
@@ -1023,6 +1024,18 @@ const fromHash = DATA.scenes.findIndex(sc => '#' + sc.id === location.hash);
 loadScene(fromHash >= 0 ? fromHash : 0);
 setPlaying(state.playing);
 document.getElementById('loading').hidden = true;
-window.__crashai = { state, setCam, follow, loadScene, setPlaying };
+// renderAt: draw one exact moment (used by scripts/record_viewer.mjs to make the README video)
+function renderAt(t, dt = 1 / 30) {
+  state.capture = true; state.playing = false; clock += dt;
+  state.t = clamp(t, 0, world.tMax);
+  const s = updateWorld(state.t); const run = world.cars[state.follow].run;
+  updateCamera(s, dt); updateHUD(run, s);
+  const p = V(s.x, s.y, 0);
+  sun.position.copy(p).add(new THREE.Vector3(-35, 45, -25)); sun.target.position.copy(p);
+  sky.position.copy(camera.position); updatePrecip(p, clock);
+  scrub.value = Math.round(state.t / world.tMax * 1000);
+  composer.render();
+}
+window.__crashai = { state, setCam, follow, loadScene, setPlaying, renderAt, setX, setF };
 requestAnimationFrame(frame);
 </script>
