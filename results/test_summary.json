@@ -1,0 +1,522 @@
+{
+  "driver_only": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.867,
+      "guardrail_rate": 0.001,
+      "mean_impact_kmh": 46.10326732292895,
+      "mean_impact_kmh_when_crashed": 53.1756255166424
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 1.0,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 78.16863101521031,
+      "mean_impact_kmh_when_crashed": 78.16863101521031
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.8487903225806451,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 51.067574726028795,
+      "mean_impact_kmh_when_crashed": 60.16512366772039
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.8679245283018868,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 48.571058684704155,
+      "mean_impact_kmh_when_crashed": 55.962306745419994
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.9,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 36.260056048314574,
+      "mean_impact_kmh_when_crashed": 40.288951164793964
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.9090909090909091,
+      "guardrail_rate": 0.010101010101010102,
+      "mean_impact_kmh": 28.54557434957601,
+      "mean_impact_kmh_when_crashed": 31.400131784533613
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 1.0,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 52.67454961923939,
+      "mean_impact_kmh_when_crashed": 52.67454961923939
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.876,
+      "guardrail_rate": 0.004,
+      "mean_impact_kmh": 30.05504869184605,
+      "mean_impact_kmh_when_crashed": 34.30941631489275
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.592,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 23.51483996542003,
+      "mean_impact_kmh_when_crashed": 39.72101345510141
+    }
+  },
+  "brake_no_abs": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.493,
+      "guardrail_rate": 0.055,
+      "mean_impact_kmh": 16.804010777179574,
+      "mean_impact_kmh_when_crashed": 34.08521455817357
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.592,
+      "guardrail_rate": 0.084,
+      "mean_impact_kmh": 24.12809425938657,
+      "mean_impact_kmh_when_crashed": 40.75691597869353
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.38306451612903225,
+      "guardrail_rate": 0.07056451612903226,
+      "mean_impact_kmh": 14.394628445305266,
+      "mean_impact_kmh_when_crashed": 37.57755636248111
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.5132075471698113,
+      "guardrail_rate": 0.06792452830188679,
+      "mean_impact_kmh": 19.02163407158996,
+      "mean_impact_kmh_when_crashed": 37.06421344831867
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.6071428571428571,
+      "guardrail_rate": 0.014285714285714285,
+      "mean_impact_kmh": 18.91713530432065,
+      "mean_impact_kmh_when_crashed": 31.157634618881062
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.8282828282828283,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 19.950940371029578,
+      "mean_impact_kmh_when_crashed": 24.087110935755227
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.932,
+      "guardrail_rate": 0.06,
+      "mean_impact_kmh": 29.79214318582172,
+      "mean_impact_kmh_when_crashed": 31.965818868907427
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.412,
+      "guardrail_rate": 0.076,
+      "mean_impact_kmh": 12.78245130280432,
+      "mean_impact_kmh_when_crashed": 31.025367239816312
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.036,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 0.5133543607056699,
+      "mean_impact_kmh_when_crashed": 14.259843352935272
+    }
+  },
+  "brake_abs": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.442,
+      "guardrail_rate": 0.06,
+      "mean_impact_kmh": 13.842917966901048,
+      "mean_impact_kmh_when_crashed": 31.318818929640372
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.48,
+      "guardrail_rate": 0.108,
+      "mean_impact_kmh": 18.36629948887267,
+      "mean_impact_kmh_when_crashed": 38.2631239351514
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.3286290322580645,
+      "guardrail_rate": 0.06653225806451613,
+      "mean_impact_kmh": 10.918618876190756,
+      "mean_impact_kmh_when_crashed": 33.224754371721566
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.4528301886792453,
+      "guardrail_rate": 0.0830188679245283,
+      "mean_impact_kmh": 15.706759288894393,
+      "mean_impact_kmh_when_crashed": 34.68576009630845
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.5785714285714286,
+      "guardrail_rate": 0.02857142857142857,
+      "mean_impact_kmh": 17.223222548784726,
+      "mean_impact_kmh_when_crashed": 29.76853280036866
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.7878787878787878,
+      "guardrail_rate": 0.010101010101010102,
+      "mean_impact_kmh": 18.724652888116726,
+      "mean_impact_kmh_when_crashed": 23.765905588763538
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.872,
+      "guardrail_rate": 0.036,
+      "mean_impact_kmh": 24.175649452412944,
+      "mean_impact_kmh_when_crashed": 27.72436863808824
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.4,
+      "guardrail_rate": 0.096,
+      "mean_impact_kmh": 12.551876921317442,
+      "mean_impact_kmh_when_crashed": 31.37969230329361
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.016,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 0.2778460050011237,
+      "mean_impact_kmh_when_crashed": 17.365375312570233
+    }
+  },
+  "brake_swerve": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.303,
+      "guardrail_rate": 0.109,
+      "mean_impact_kmh": 11.090675644750657,
+      "mean_impact_kmh_when_crashed": 36.602889916668836
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.296,
+      "guardrail_rate": 0.156,
+      "mean_impact_kmh": 13.086636503911832,
+      "mean_impact_kmh_when_crashed": 44.21160981051294
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.17338709677419356,
+      "guardrail_rate": 0.056451612903225805,
+      "mean_impact_kmh": 7.2829364191502055,
+      "mean_impact_kmh_when_crashed": 42.00391237091283
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.2679245283018868,
+      "guardrail_rate": 0.1320754716981132,
+      "mean_impact_kmh": 11.043148686198514,
+      "mean_impact_kmh_when_crashed": 41.217385941445144
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.4928571428571429,
+      "guardrail_rate": 0.22857142857142856,
+      "mean_impact_kmh": 17.09639496955338,
+      "mean_impact_kmh_when_crashed": 34.68833761938367
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.7777777777777778,
+      "guardrail_rate": 0.1414141414141414,
+      "mean_impact_kmh": 21.802115992647234,
+      "mean_impact_kmh_when_crashed": 28.03129199054645
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.408,
+      "guardrail_rate": 0.116,
+      "mean_impact_kmh": 15.060780671805876,
+      "mean_impact_kmh_when_crashed": 36.91367811717128
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.42,
+      "guardrail_rate": 0.164,
+      "mean_impact_kmh": 14.855767406104283,
+      "mean_impact_kmh_when_crashed": 35.370874776438775
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.088,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 1.3595179971806404,
+      "mean_impact_kmh_when_crashed": 15.449068149780002
+    }
+  },
+  "brake_swerve_esc": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.289,
+      "guardrail_rate": 0.096,
+      "mean_impact_kmh": 10.68000911611732,
+      "mean_impact_kmh_when_crashed": 36.955048844696606
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.28,
+      "guardrail_rate": 0.14,
+      "mean_impact_kmh": 12.608929244743283,
+      "mean_impact_kmh_when_crashed": 45.03189015979744
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.1592741935483871,
+      "guardrail_rate": 0.04233870967741935,
+      "mean_impact_kmh": 6.792196982027366,
+      "mean_impact_kmh_when_crashed": 42.64467978589334
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.2490566037735849,
+      "guardrail_rate": 0.1169811320754717,
+      "mean_impact_kmh": 10.492149443452952,
+      "mean_impact_kmh_when_crashed": 42.12756973507624
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.4785714285714286,
+      "guardrail_rate": 0.21428571428571427,
+      "mean_impact_kmh": 16.924709708219563,
+      "mean_impact_kmh_when_crashed": 35.36506506195132
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.7777777777777778,
+      "guardrail_rate": 0.1414141414141414,
+      "mean_impact_kmh": 21.830307589555304,
+      "mean_impact_kmh_when_crashed": 28.06753832942825
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.4,
+      "guardrail_rate": 0.116,
+      "mean_impact_kmh": 14.932184478879194,
+      "mean_impact_kmh_when_crashed": 37.33046119719798
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.388,
+      "guardrail_rate": 0.128,
+      "mean_impact_kmh": 13.801342327444488,
+      "mean_impact_kmh_when_crashed": 35.57046991609404
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.088,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 1.377580413402315,
+      "mean_impact_kmh_when_crashed": 15.654322879571756
+    }
+  },
+  "learned_pedal": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.132,
+      "guardrail_rate": 0.015,
+      "mean_impact_kmh": 4.1322987307436305,
+      "mean_impact_kmh_when_crashed": 31.30529341472447
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.084,
+      "guardrail_rate": 0.016,
+      "mean_impact_kmh": 3.655155019569176,
+      "mean_impact_kmh_when_crashed": 43.51375023296639
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.05241935483870968,
+      "guardrail_rate": 0.0020161290322580645,
+      "mean_impact_kmh": 1.5088356548907373,
+      "mean_impact_kmh_when_crashed": 28.783941724069447
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.09056603773584905,
+      "guardrail_rate": 0.01509433962264151,
+      "mean_impact_kmh": 2.553758651004051,
+      "mean_impact_kmh_when_crashed": 28.197751771503057
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.20714285714285716,
+      "guardrail_rate": 0.04285714285714286,
+      "mean_impact_kmh": 7.844472103845156,
+      "mean_impact_kmh_when_crashed": 37.86986532890765
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.5353535353535354,
+      "guardrail_rate": 0.04040404040404041,
+      "mean_impact_kmh": 16.251960695590196,
+      "mean_impact_kmh_when_crashed": 30.35743601629112
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.18,
+      "guardrail_rate": 0.016,
+      "mean_impact_kmh": 4.3990545238608085,
+      "mean_impact_kmh_when_crashed": 24.439191799226712
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.248,
+      "guardrail_rate": 0.028,
+      "mean_impact_kmh": 8.208520351205827,
+      "mean_impact_kmh_when_crashed": 33.09887238389447
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.016,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 0.26646502833870955,
+      "mean_impact_kmh_when_crashed": 16.654064271169343
+    }
+  },
+  "learned_full": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.153,
+      "guardrail_rate": 0.014,
+      "mean_impact_kmh": 4.864503401189115,
+      "mean_impact_kmh_when_crashed": 31.794139877053034
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.092,
+      "guardrail_rate": 0.012,
+      "mean_impact_kmh": 3.900980263366622,
+      "mean_impact_kmh_when_crashed": 42.4019593844198
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.08266129032258064,
+      "guardrail_rate": 0.010080645161290322,
+      "mean_impact_kmh": 2.7640736503892764,
+      "mean_impact_kmh_when_crashed": 33.43854952666051
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.09056603773584905,
+      "guardrail_rate": 0.0037735849056603774,
+      "mean_impact_kmh": 2.507895752507737,
+      "mean_impact_kmh_when_crashed": 27.691348933939597
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.22142857142857142,
+      "guardrail_rate": 0.007142857142857143,
+      "mean_impact_kmh": 7.244005057841631,
+      "mean_impact_kmh_when_crashed": 32.71486155154285
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.5757575757575758,
+      "guardrail_rate": 0.0707070707070707,
+      "mean_impact_kmh": 18.33100796044096,
+      "mean_impact_kmh_when_crashed": 31.838066457607976
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.244,
+      "guardrail_rate": 0.024,
+      "mean_impact_kmh": 6.185026922956892,
+      "mean_impact_kmh_when_crashed": 25.34847099572496
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.264,
+      "guardrail_rate": 0.02,
+      "mean_impact_kmh": 9.166961366856182,
+      "mean_impact_kmh_when_crashed": 34.72333851081887
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.012,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 0.20504505157676262,
+      "mean_impact_kmh_when_crashed": 17.087087631396884
+    }
+  },
+  "learned_brakes_only": {
+    "all": {
+      "n": 1000,
+      "crash_rate": 0.25,
+      "guardrail_rate": 0.015,
+      "mean_impact_kmh": 7.041155600488334,
+      "mean_impact_kmh_when_crashed": 28.164622401953338
+    },
+    "stopped": {
+      "n": 250,
+      "crash_rate": 0.172,
+      "guardrail_rate": 0.028,
+      "mean_impact_kmh": 6.443129284058804,
+      "mean_impact_kmh_when_crashed": 37.46005397708606
+    },
+    "surface:dry": {
+      "n": 496,
+      "crash_rate": 0.1310483870967742,
+      "guardrail_rate": 0.016129032258064516,
+      "mean_impact_kmh": 4.278676614246172,
+      "mean_impact_kmh_when_crashed": 32.64959385640156
+    },
+    "surface:wet": {
+      "n": 265,
+      "crash_rate": 0.18867924528301888,
+      "guardrail_rate": 0.01509433962264151,
+      "mean_impact_kmh": 5.313522109948157,
+      "mean_impact_kmh_when_crashed": 28.161667182725235
+    },
+    "surface:snow": {
+      "n": 140,
+      "crash_rate": 0.4,
+      "guardrail_rate": 0.02142857142857143,
+      "mean_impact_kmh": 11.002970752795761,
+      "mean_impact_kmh_when_crashed": 27.507426881989407
+    },
+    "surface:ice": {
+      "n": 99,
+      "crash_rate": 0.797979797979798,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 19.903360962571362,
+      "mean_impact_kmh_when_crashed": 24.94218652271601
+    },
+    "lead_brake": {
+      "n": 250,
+      "crash_rate": 0.476,
+      "guardrail_rate": 0.02,
+      "mean_impact_kmh": 12.326311614858453,
+      "mean_impact_kmh_when_crashed": 25.895612636257255
+    },
+    "cut_in": {
+      "n": 250,
+      "crash_rate": 0.332,
+      "guardrail_rate": 0.012,
+      "mean_impact_kmh": 9.099197754472934,
+      "mean_impact_kmh_when_crashed": 27.407222152026907
+    },
+    "pedestrian": {
+      "n": 250,
+      "crash_rate": 0.02,
+      "guardrail_rate": 0.0,
+      "mean_impact_kmh": 0.2959837485631482,
+      "mean_impact_kmh_when_crashed": 14.79918742815741
+    }
+  }
+}

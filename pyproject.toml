@@ -1,0 +1,30 @@
+[project]
+name = "crashai"
+version = "0.1.0"
+description = "Learning collision avoidance with individual wheel braking, steering and throttle"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "numpy>=1.26",
+    "numba>=0.60",
+    "gymnasium>=1.0",
+    "stable-baselines3>=2.3",
+    "torch>=2.2",
+    "matplotlib>=3.8",
+    "pillow>=10",
+    "tqdm",
+    "rich",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["crashai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

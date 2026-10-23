@@ -2,7 +2,42 @@
 
 **Can a neural network learn to avoid collisions by controlling each wheel's brake on its own, plus the throttle?**
 
-> Status: idea / early design. This README changes as the design is discussed.
+> Status: round 2 trained and tested. Learned control halves crashes against scripted rules, and braking alone (no steering) avoids more crashes than a scripted swerve. With steering available, four brakes haven't beaten one pedal + ESC yet. See [Results](#results). This README changes as the project moves.
+
+## Quick start (macOS)
+
+```bash
+uv venv --python 3.12 .venv && source .venv/bin/activate
+uv pip install -e ".[dev]"
+
+pytest                                                   # physics + environment tests
+python scripts/train.py --controls full                  # 4 brakes + steering + throttle
+python scripts/train.py --controls pedal                 # 1 pedal + steering + throttle (ESC on)
+python scripts/train.py --controls brakes_only           # 4 brakes + throttle, steering frozen
+python scripts/evaluate.py --n 250                       # all controllers on the same 1,000 emergencies
+python scripts/watch.py --scenario cut_in --seed 3       # side-by-side GIF in media/
+```
+
+Training runs on the CPU (no graphics card needed). A 1.5M-step run takes about 1–2 hours on an M-series Mac.
+
+## Project layout
+
+| File | What it does |
+|---|---|
+| [crashai/params.py](crashai/params.py) | Car parameters (mass, tires, brakes, steering limits, ABS/ESC tuning) |
+| [crashai/physics.py](crashai/physics.py) | Compiled (numba) vehicle dynamics: 4 wheels, combined-slip tires, load transfer, open differential, brake/steering actuator limits, ABS, ESC |
+| [crashai/vehicle.py](crashai/vehicle.py) | Python wrapper around the physics |
+| [crashai/world.py](crashai/world.py) | Road (lanes, guardrails, friction patches) and scripted obstacles |
+| [crashai/scenarios.py](crashai/scenarios.py) | Random emergencies: stopped object, lead car braking, cut-in, pedestrian from behind parked cars |
+| [crashai/driver.py](crashai/driver.py) | Simulated human driver: lane and speed keeping, late or no reaction |
+| [crashai/sensors.py](crashai/sensors.py) | Simulated sensor-fusion object list: noise, delay, misses, ghosts, range, occlusion |
+| [crashai/threat.py](crashai/threat.py) | Path-based time-to-collision and collision checks |
+| [crashai/env.py](crashai/env.py) | Gymnasium environment: driver phase → trigger → network control → hand-back |
+| [crashai/controllers.py](crashai/controllers.py) | Rule-based baselines and a wrapper for trained policies |
+| [crashai/evaluation.py](crashai/evaluation.py) | Fixed test set, metrics, tables |
+| [crashai/render.py](crashai/render.py) | Top-down animation, one row per controller |
+| [scripts/](scripts/) | `train.py`, `evaluate.py`, `watch.py` |
+| [tests/](tests/) | Physics checks (braking ≈ μg, ABS, brake-steer direction, open-diff trick), geometry, environment |
 
 ## The idea
 
@@ -28,17 +63,34 @@ All tire forces share one budget, the **friction circle**. Force a tire spends o
 
 A key thing to find out is *how much* collision avoidance the brakes add, compared with steering alone and with steering plus standard ESC.
 
-## Proposed setup (draft)
+## Setup
 
-| Part | Draft choice |
+| Part | Choice |
 |---|---|
-| Simulator | **Our own** lightweight 2D simulator in Python/NumPy: 4-wheel model, nonlinear tires (Pacejka "Magic Formula"), load transfer (see [Simulator](#simulator)) |
+| Simulator | **Our own** 2D simulator (Python + numba): 4-wheel model, Pacejka "Magic Formula" tires with combined slip, load transfer, physics at 500 Hz (see [Simulator](#simulator)) |
 | Car | Ordinary front-wheel-drive car with an open differential (see [The car](#the-car)) |
-| Actions | **6 continuous controls:** steering + brake torque for each of the 4 wheels + **one** throttle value (see [Actions](#actions)) |
-| Observations | Data from the car's own sensors (see [Sensors](#sensors)) |
-| Reward | Large penalty for a collision; small penalties for leaving the road, jerk, and excess slip; bonus for ending stable and handing back control quickly |
-| Algorithm | Off-policy continuous-control RL (SAC or TD3) as a first choice; PPO as a baseline |
-| Scenarios | Sudden obstacle, car cutting in, low-friction patches (wet or ice), split-friction road surfaces |
+| Actions | **6 continuous controls at 20 Hz:** steering + brake torque for each of the 4 wheels + **one** throttle value (see [Actions](#actions)) |
+| Observations | 142 numbers: car state (30) + the 8 nearest objects from the sensor-fusion list (14 each) (see [Sensors](#sensors)) |
+| Reward | See [Reward](#reward) |
+| Algorithm | SAC (Stable-Baselines3), 2×256 MLP, 6 parallel environments |
+| Scenarios | Stopped object, lead car braking hard, cut-in, pedestrian/cyclist from behind parked cars; dry/wet/snow/ice; 20% split-friction patches; random traffic in neighbouring lanes |
+
+## Reward
+
+Per control step (the total is scaled by 0.1 for training):
+
+| Term | Value |
+|---|---|
+| Collision with an object | −(50 + 3 × impact speed in m/s), episode ends |
+| Hitting a guardrail | −(50 + 1.5 × speed), episode ends |
+| Stopped safely, or handed back (no predicted collision for 0.5 s, car stable) | +10, minus up to 3 for ending between lanes, episode ends |
+| Premature hand-back (an alert driver crashes within 4 s of taking back control) | Same as a collision |
+| Time | −0.02 per step (hand back sooner) |
+| Smoothness | −0.02 × (change in action)² |
+| Sliding | −0.5 × (sideslip above ~3°) |
+| Danger shaping | Potential-based: −2 × (how close the true time-to-collision is to zero, within 3 s) |
+
+Lower impact speed still counts when a crash can't be avoided, as it does for real AEB.
 
 ## The car
 
@@ -176,7 +228,7 @@ The network gets the same sensor data a modern car already collects. It needs tw
 
 | Input | Contents |
 |---|---|
-| **Object list** (up to 16 nearest) | Position, velocity, acceleration, size, heading, type (car, truck, cyclist, pedestrian, unknown), and how confident the car is in each |
+| **Object list** (8 nearest) | Position, velocity, size, heading, type (car, truck, pedestrian, cyclist, debris), and how confident the car is in each |
 | **Road** | Lane lines, road edges, drivable free space |
 | **Car state** | Speed, yaw rate, lateral/longitudinal acceleration, each wheel's speed and slip, steering angle, each wheel's brake pressure |
 | **Road grip estimate** | Rough friction estimate (dry / wet / snow / ice), which modern cars estimate from wheel slip and weather |
@@ -185,6 +237,17 @@ The network gets the same sensor data a modern car already collects. It needs tw
 This keeps the project focused on control, the new part, and matches what a real car could actually feed such a system.
 
 In the simulator, we don't simulate cameras or lidar physically. We generate the fused object list directly from the true world state, then **corrupt it on purpose**: position and speed noise, ~50–100 ms delay, a ~20 Hz update rate, missed detections, false "ghost" objects, and shorter range in rain or fog. A policy trained on perfect data will fail on real data.
+
+Implemented in [crashai/sensors.py](crashai/sensors.py):
+
+| Effect | Model |
+|---|---|
+| Noise | Slowly drifting (correlated) position and velocity error, growing with distance |
+| Delay | 1–2 frames (50–100 ms), random per episode |
+| Missed detections | 2–10% per frame depending on weather; the tracker coasts the object for up to 4 frames |
+| Ghosts | Occasional false low-confidence objects 15–80 m ahead |
+| Range | ~220 m ahead, ~90 m to the sides; pedestrians/cyclists ~90 m; × 0.4–0.65 in rain, snow or fog |
+| Occlusion | Objects fully hidden behind nearer objects aren't reported (the pedestrian behind a parked van) |
 
 ## Baselines to beat
 
@@ -201,6 +264,99 @@ In the simulator, we don't simulate cameras or lidar physically. We generate the
 6. **Four** brakes + throttle, no steering: brake-steer only
 
 **The main result is 5 vs 4.** If 5 avoids more crashes than 4, the gain comes from individual wheel braking and not just from having a neural network drive.
+
+Plus a **"driver only"** reference: no system at all, the distracted or late driver keeps driving.
+
+ABS is always on (it's the low-level hardware that keeps wheels from locking). ESC is on for the human-like controls (driver only, pedal network), because every modern car has it. In the full network, ESC is off, since the network has the four brakes itself.
+
+## Results
+
+The test set is 1,000 emergencies (250 per scenario type), identical for every controller. Every hand-back is checked by an alert driver driving on for 4 s. Each cell is the **crash rate**, with the mean impact speed over all episodes in brackets (0 when avoided). Full tables: [results/RESULTS.md](results/RESULTS.md).
+
+### Summary
+
+1. **Learned control halves the crash rate.** The trained networks crash in 13–15% of emergencies, against 29% for the best scripted rule and 44% for today's style of emergency braking. When they do crash, they hit much slower (4–5 km/h average vs 11).
+2. **Braking alone, with no steering, steers the car out of trouble.** The brakes-only network crashes in 25%, fewer than straight ABS braking (44%) and even fewer than the scripted controller that can steer (29%). Uneven braking is a real steering tool, and a strong fallback if steering fails.
+3. **With steering available, four brakes did *not* beat one pedal + ESC (yet).** The single-pedal network scored 13% vs 15%. Paired on the same emergencies, the pedal network avoided 31 crashes the four-brake one didn't, against 10 the other way. So the main claim isn't supported in this round.
+
+### Round 2 test results (1,000 emergencies per controller)
+
+| Controller | Overall | Stopped object | Lead car brakes | Cut-in | Pedestrian |
+|---|---|---|---|---|---|
+| Driver only (no system) | 87% (46 km/h) | 100% (78 km/h) | 100% (53 km/h) | 88% (30 km/h) | 59% (24 km/h) |
+| Full braking, no ABS | 49% (17 km/h) | 59% (24 km/h) | 93% (30 km/h) | 41% (13 km/h) | 4% (1 km/h) |
+| Full braking + ABS (≈ today's AEB) | 44% (14 km/h) | 48% (18 km/h) | 87% (24 km/h) | 40% (13 km/h) | 2% (0 km/h) |
+| Braking + scripted swerve | 30% (11 km/h) | 30% (13 km/h) | 41% (15 km/h) | 42% (15 km/h) | 9% (1 km/h) |
+| Braking + swerve + ESC | 29% (11 km/h) | 28% (13 km/h) | 40% (15 km/h) | 39% (14 km/h) | 9% (1 km/h) |
+| **Learned: steering + 1 pedal (+ESC)** | **13% (4 km/h)** | 8% (4 km/h) | 18% (4 km/h) | 25% (8 km/h) | 2% (0 km/h) |
+| **Learned: steering + 4 brakes** | **15% (5 km/h)** | 9% (4 km/h) | 24% (6 km/h) | 26% (9 km/h) | 1% (0 km/h) |
+| **Learned: 4 brakes, no steering** | **25% (7 km/h)** | 17% (6 km/h) | 48% (12 km/h) | 33% (9 km/h) | 2% (0 km/h) |
+
+By road surface:
+
+| Controller | Dry | Wet | Snow | Ice | Split grip |
+|---|---|---|---|---|---|
+| Braking + swerve + ESC | 16% | 25% | 48% | 78% | 67% |
+| Learned: 1 pedal | 5% | 9% | 21% | 54% | 30% |
+| Learned: 4 brakes | 8% | 9% | 22% | 58% | 33% |
+| Learned: 4 brakes, no steering | 13% | 19% | 40% | 80% | 50% |
+
+About 12% of the emergencies (118 of 1,000) end in a crash whatever any controller does: the warning comes too late for the grip available.
+
+### 3D replay viewer
+
+[viewer/index.html](viewer/index.html) replays recorded emergencies in 3D (Three.js). All six controllers drive the same emergency: the one you follow is drawn in full, and the others appear as coloured ghosts once their paths split at takeover. The body is see-through, so you can watch each brake disc glow with its own brake force, the tire-force arrows, skid marks and brake lights. An instrument cluster shows speed, steering, each wheel's brake force and a **grip circle per tire**: the dot turns red when that tire uses all its grip, which is the friction-circle limit described above.
+
+```bash
+python scripts/export_viewer.py        # records showcase emergencies into viewer/episodes.js
+open viewer/index.html                 # or serve the folder: python -m http.server -d viewer
+```
+
+Keys: Space play/pause, ←/→ step, 1–6 follow a controller, C camera, X x-ray, F forces, S sensor boxes (what the car's sensors report, ghosts in red).
+
+Assets in [viewer/assets/](viewer/assets/), all from the three.js examples (r160): the car model "Ferrari 458 Italia" by vicent091036 (CC BY 4.0) with its contact-shadow texture, the "Venice sunset" HDR sky (Poly Haven, CC0) for reflections, and the JavaScript Draco decoder. The model is for looks only: the physics is still the mid-size front-wheel-drive car above.
+
+### Animations (2D)
+
+- [media/stopped_wet_all_controllers.gif](media/stopped_wet_all_controllers.gif): a stopped car on a wet road at 107 km/h. Driver alone crashes at 107 km/h, ABS braking at 55 km/h, and the scripted swerve hits the guardrail. All three networks get past. The brakes-only one changes lanes using uneven braking alone.
+- [media/split_mu_four_brakes_vs_pedal.gif](media/split_mu_four_brakes_vs_pedal.gif): one of the 10 cases where four brakes beat one pedal, on a wet road with a slippery patch under one side.
+
+Make your own: `python scripts/watch.py --scenario cut_in --seed 7 --controllers brake_abs learned_pedal learned_full`.
+
+### Why four brakes didn't win (yet), and what to try next
+
+- **The pedal network isn't "one pedal" in practice.** It has ESC, which already brakes single wheels using hand-tuned rules. So the comparison is learned four-wheel braking against ESC four-wheel braking, which is a harder test than planned.
+- **Grip is the limit.** With steering available, the tires are usually already at their grip limit, so extra yaw from the brakes has little room to help. Brakes-only shows that the effect is large when steering is missing.
+- **Learning is harder with more controls.** The four-brake network has 6 controls instead of 3 and started slower in both rounds. It may need more training or tuning.
+- **One training run each.** RL results vary between runs. A 2-point gap needs several seeds per setup to be trusted.
+
+Next experiments:
+
+1. Train 3 seeds per setup, and train longer.
+2. Add "pedal without ESC" to separate learned per-wheel braking from ESC.
+3. Add harder emergencies where steering alone runs out: split grip, steering failure, swerving while braking on snow.
+4. Give the four-brake network a head start: start from the pedal network's skills, or use one brake value plus a left/right split.
+
+### Lesson from round 1: the networks gamed the hand-back
+
+The first trained networks scored 21–22% crashes against 35% for the best scripted rule. But in the animations, a network would "avoid" a stopped car at 98 km/h while the car was still in its lane ahead. It had learned to twitch the car so the danger check briefly predicted a miss. The episode then ended as a success and control went back to the driver, who would crash a moment later.
+
+Re-scored with an **alert driver driving on for 4 s after every hand-back**, where a crash in that time counts as a crash:
+
+| Controller | Crash rate as first scored | With hand-back check |
+|---|---|---|
+| Braking + swerve + ESC (scripted) | 35% | 38% |
+| Learned, single pedal | 21% | 44% |
+| Learned, four brakes | 22% | 44% |
+| Learned, brakes only | 30% | 64% |
+
+Fixes for round 2:
+
+1. The after-hand-back check is part of training, so a premature hand-back is punished like a crash.
+2. Hand-back also needs a clear path when the car is assumed to simply follow its lane, not only along its current curve.
+3. Cut-ins started too close: 152 of 250 crashed whatever any controller did. The cutting car now starts 14–35 m ahead instead of 6–22 m.
+
+Round-1 models and results are kept in `models_v1/` and `results_v1/`.
 
 ## Open questions
 
@@ -221,3 +377,6 @@ In the simulator, we don't simulate cameras or lidar physically. We generate the
 - 2026-10-21: Chose an ordinary FWD car with an open differential and one throttle; per-wheel throttle (quad-motor EV) is a later extension.
 - 2026-10-21: The network controls steering too (6 controls in total). The main experiment compares 4 individual brakes vs 1 pedal, both with steering.
 - 2026-10-21: The network steps in only when a crash is about to happen (TTC trigger, like AEB). Input is the fused object list from an ideal modern sensor set, with noise and delay added in simulation.
+- 2026-10-21: Built the simulator, scenarios, sensor model, environment, baselines, training, evaluation and viewer. 24 tests pass. Physics checks: ABS braking ≈ μg, ABS stops 6 m shorter than locked wheels from 108 km/h, braking one side turns the car toward that side, and braking a spinning wheel on split grip lets the open differential drive the other wheel. Started training the three learned policies, then paused before the first checkpoint.
+- 2026-10-21: Round 1 trained (1M steps each, ~2 h). Found the networks were gaming the hand-back rule (see [Lesson from round 1](#lesson-from-round-1-the-networks-gamed-the-hand-back)). Added a 4 s after-hand-back check, a stricter hand-back rule and fairer cut-ins. Round 2 training started.
+- 2026-10-21: Round 2 tested on 1,000 emergencies (training stopped at ~950k of 1M steps; best checkpoints used). Learned: 13% (pedal + ESC), 15% (4 brakes), 25% (brakes only, no steering), against 29% for the best scripted rule. Only 5–8 crashes after hand-back per controller, so the gaming is fixed.
